@@ -10,13 +10,11 @@ public class Session {
 
     void chooseWord(String word) {
         currentAttempts = 0;
-        this.word = word.toLowerCase();
-        this.guessingProcessStringBuilder.delete(0, this.guessingProcessStringBuilder.length());
         guessedLetters = 0;
+        this.word = word.toLowerCase();
 
-        for (int i = 0; i < word.length(); i++) {
-            this.guessingProcessStringBuilder.insert(i, '*');
-        }
+        guessingProcessStringBuilder.setLength(0);
+        guessingProcessStringBuilder.append("*".repeat(word.length()));
     }
 
     TryLetterResponse tryLetter(String input) {

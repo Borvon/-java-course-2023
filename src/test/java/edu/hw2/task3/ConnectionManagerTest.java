@@ -12,9 +12,11 @@ class ConnectionManagerTest {
         var manager = new DefaultConnectionManager();
 
         for (int i = 0; i < 10; i++) {
-            if(i%2==0)
-            assertThat(manager.getConnection().getClass().toString()).isEqualTo("class edu.hw2.task3.FaultyConnection");
-            else assertThat(manager.getConnection().getClass().toString()).isEqualTo("class edu.hw2.task3.StableConnection");
+            if (i % 2 == 0) {
+                assertThat(manager.getConnection() instanceof FaultyConnection).isEqualTo(true);
+            } else {
+                assertThat(manager.getConnection() instanceof StableConnection).isEqualTo(true);
+            }
         }
     }
 

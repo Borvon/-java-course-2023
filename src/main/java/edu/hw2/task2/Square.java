@@ -10,7 +10,7 @@ public class Square extends Rectangle {
     }
 
     @Override
-    int  setHeight(int height) {
+    int setHeight(int height) {
         super.setHeight(height);
         super.setWidth(height);
         return 1;

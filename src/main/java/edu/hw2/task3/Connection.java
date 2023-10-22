@@ -5,5 +5,6 @@ import org.apache.logging.log4j.Logger;
 
 public interface Connection extends AutoCloseable {
     Logger LOGGER = LogManager.getLogger();
+
     void execute(String command);
 }

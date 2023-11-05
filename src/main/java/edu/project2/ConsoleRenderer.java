@@ -9,7 +9,7 @@ public class ConsoleRenderer implements Renderer {
     }
 
     @Override
-    public void render() {
+    public void renderWithSolution(int[][] solution) {
         System.out.print("   ");
         for (int i = 1; i < maze.getWidth() - 1; i++) {
             StringBuilder headBuilder = new StringBuilder("───");
@@ -28,7 +28,14 @@ public class ConsoleRenderer implements Renderer {
             System.out.print("│");
             for (int j = 0; j < maze.getWidth(); j++) {
                 if (maze.getRightBorders()[i][j] == 1) {
-                    System.out.print("  │");
+
+                    if (solution != null && solution[i][j] == 2) {
+                        System.out.print(" .│");
+                    } else {
+                        System.out.print("  │");
+                    }
+                } else if (solution != null && solution[i][j] == 2) {
+                    System.out.print(" . ");
                 } else {
                     System.out.print("   ");
                 }
@@ -42,7 +49,7 @@ public class ConsoleRenderer implements Renderer {
 
                     if (maze.getRightBorders()[i][j] == 1) {
 
-                         lowerBorderBuilder.setCharAt(2, '┘');
+                        lowerBorderBuilder.setCharAt(2, '┘');
                     }
 
                     if (i + 1 < maze.getHeight()) {
@@ -87,5 +94,10 @@ public class ConsoleRenderer implements Renderer {
             }
             System.out.println();
         }
+    }
+
+    @Override
+    public void render() {
+        renderWithSolution(null);
     }
 }

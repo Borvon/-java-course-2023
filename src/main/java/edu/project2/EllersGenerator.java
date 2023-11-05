@@ -9,7 +9,7 @@ public class EllersGenerator implements Generator {
 
     private int counter;
 
-    private static final Random RAND = new Random(1);
+    private static final Random RAND = new Random();
 
     @Override
     public Maze generate(int height, int width) {

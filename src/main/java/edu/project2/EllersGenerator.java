@@ -9,7 +9,7 @@ public class EllersGenerator implements Generator {
 
     private int counter;
 
-    private static final Random rand = new Random(1);
+    private static final Random RAND = new Random(1);
 
     @Override
     public Maze generate(int height, int width) {
@@ -51,7 +51,7 @@ public class EllersGenerator implements Generator {
             if (i + 1 < cells.length) {
                 if (cells[i] == cells[i + 1]) {
                     rightBorders[i] = 1;
-                } else if (rand.nextInt() % rightBordersFreq == 0) {
+                } else if (RAND.nextInt() % rightBordersFreq == 0) {
                     rightBorders[i] = 1;
                 } else if (i + 1 < cells.length) {
                     mergeGroups(cells, cells[i], cells[i + 1]);
@@ -75,7 +75,7 @@ public class EllersGenerator implements Generator {
 
         for (int i = 0; i < cells.length; i++) {
             if ((hasDoor || i + 1 < cells.length && cells[i] == cells[i + 1])
-                && (rand.nextInt() % lowerBordersFreq == 0)) {
+                && (RAND.nextInt() % lowerBordersFreq == 0)) {
                 lowerBorders[i] = 1;
             } else {
                 hasDoor = true;

@@ -9,7 +9,7 @@ public class EllersGenerator implements Generator {
 
     private int counter;
 
-    private static final Random rand = new Random();
+    private static final Random rand = new Random(1);
 
     @Override
     public Maze generate(int height, int width) {
@@ -24,7 +24,7 @@ public class EllersGenerator implements Generator {
             addLowerBorders(cells[i], lowerBorders[i]);
         }
 
-        transformLastString(width, cells[height-1], rightBorders[height-1], lowerBorders[height-1]);
+        transformLastString(width, cells[height - 1], rightBorders[height - 1], lowerBorders[height - 1]);
 
         return new Maze(height, width, rightBorders, lowerBorders);
     }
@@ -54,7 +54,7 @@ public class EllersGenerator implements Generator {
                 } else if (rand.nextInt() % rightBordersFreq == 0) {
                     rightBorders[i] = 1;
                 } else if (i + 1 < cells.length) {
-                    mergeGroups(cells, cells[i], cells[i+1]);
+                    mergeGroups(cells, cells[i], cells[i + 1]);
                 }
             } else {
                 rightBorders[i] = 1;
@@ -74,8 +74,8 @@ public class EllersGenerator implements Generator {
         boolean hasDoor = false;
 
         for (int i = 0; i < cells.length; i++) {
-            if ((hasDoor || i + 1 < cells.length && cells[i] == cells[i + 1]) &&
-                 (rand.nextInt() % lowerBordersFreq == 0)) {
+            if ((hasDoor || i + 1 < cells.length && cells[i] == cells[i + 1])
+                && (rand.nextInt() % lowerBordersFreq == 0)) {
                 lowerBorders[i] = 1;
             } else {
                 hasDoor = true;
@@ -86,18 +86,15 @@ public class EllersGenerator implements Generator {
         }
     }
 
-    private void transformLastString(int width, int[] cells, int[] rightBorders, int[] lowerBorders)
-    {
-        for (int i=0; i<width-1; i++)
-        {
-            lowerBorders[i]=1;
+    private void transformLastString(int width, int[] cells, int[] rightBorders, int[] lowerBorders) {
+        for (int i = 0; i < width - 1; i++) {
+            lowerBorders[i] = 1;
 
-            if (cells[i]!=cells[i+1])
-            {
-                rightBorders[i]=0;
-                mergeGroups(cells, cells[i], cells[i+1]);
+            if (cells[i] != cells[i + 1]) {
+                rightBorders[i] = 0;
+                mergeGroups(cells, cells[i], cells[i + 1]);
             }
         }
-        lowerBorders[width-1]=0;
+        lowerBorders[width - 1] = 0;
     }
 }

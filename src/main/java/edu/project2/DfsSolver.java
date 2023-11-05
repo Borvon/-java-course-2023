@@ -46,17 +46,17 @@ public class DfsSolver implements Solver {
     }
 
     private boolean canGoDown(Maze maze, int[][] solution, int startX, int startY) {
-        return (startY + 1 < maze.getHeight() && maze.getLowerBorders()[startY][startX] == 0 &&
-            solution[startY + 1][startX] == 0);
+        return (startY + 1 < maze.getHeight() && maze.getLowerBorders()[startY][startX] == 0
+            && solution[startY + 1][startX] == 0);
     }
 
     private boolean canGoRight(Maze maze, int[][] solution, int startX, int startY) {
-        return (startX + 1 < maze.getWidth() && maze.getRightBorders()[startY][startX] == 0 &&
-            solution[startY][startX + 1] == 0);
+        return (startX + 1 < maze.getWidth() && maze.getRightBorders()[startY][startX] == 0
+            && solution[startY][startX + 1] == 0);
     }
 
     private boolean canGoLeft(Maze maze, int[][] solution, int startX, int startY) {
-        return (startX > 0 && maze.getRightBorders()[startY][startX - 1] == 0 &&
-            solution[startY][startX - 1] == 0);
+        return (startX > 0 && maze.getRightBorders()[startY][startX - 1] == 0
+            && solution[startY][startX - 1] == 0);
     }
 }

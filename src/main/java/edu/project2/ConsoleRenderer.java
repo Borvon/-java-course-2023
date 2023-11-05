@@ -9,43 +9,47 @@ public class ConsoleRenderer implements Renderer {
     }
 
     @Override
-    public void renderWithSolution(int[][] solution) {
-        System.out.print("   ");
+    public String renderWithSolution(int[][] solution) {
+        String emptyLine = "   ";
+        String line = "───";
+
+        StringBuilder result = new StringBuilder();
+        result.append(emptyLine);
         for (int i = 1; i < maze.getWidth() - 1; i++) {
-            StringBuilder headBuilder = new StringBuilder("───");
+            StringBuilder headBuilder = new StringBuilder(line);
 
             if (maze.getRightBorders()[0][i - 1] == 1) {
                 headBuilder.setCharAt(0, '┬');
             }
 
-            System.out.print(headBuilder);
+            result.append(headBuilder);
         }
-        System.out.print("───┐");
+        result.append("───┐");
 
-        System.out.println();
+        result.append("\n");
         for (int i = 0; i < maze.getHeight(); i++) {
 
-            System.out.print("│");
+            result.append("│");
             for (int j = 0; j < maze.getWidth(); j++) {
                 if (maze.getRightBorders()[i][j] == 1) {
 
                     if (solution != null && solution[i][j] == 2) {
-                        System.out.print(" .│");
+                        result.append(" .│");
                     } else {
-                        System.out.print("  │");
+                        result.append("  │");
                     }
                 } else if (solution != null && solution[i][j] == 2) {
-                    System.out.print(" . ");
+                    result.append(" . ");
                 } else {
-                    System.out.print("   ");
+                    result.append(emptyLine);
                 }
             }
-            System.out.println();
-            System.out.print((i + 1 == maze.getHeight()) ? "└" : "│");
+            result.append("\n");
+            result.append((i + 1 == maze.getHeight()) ? "└" : "│");
 
             for (int j = 0; j < maze.getWidth(); j++) {
                 if (maze.getLowerBorders()[i][j] == 1) {
-                    StringBuilder lowerBorderBuilder = new StringBuilder("───");
+                    StringBuilder lowerBorderBuilder = new StringBuilder(line);
 
                     if (maze.getRightBorders()[i][j] == 1) {
 
@@ -66,38 +70,39 @@ public class ConsoleRenderer implements Renderer {
                         }
                     }
 
-                    System.out.print(lowerBorderBuilder);
+                    result.append(lowerBorderBuilder);
 
                 } else {
 
-                    StringBuilder rightBorderBuilder = new StringBuilder("   ");
+                    StringBuilder rightBorderBuilder = new StringBuilder(emptyLine);
 
-                    if (i + 1 < maze.getHeight() && j + 1 < maze.getWidth() && maze.getRightBorders()[i + 1][j] == 1 &&
-                        maze.getLowerBorders()[i][j + 1] == 1) {
+                    if (i + 1 < maze.getHeight() && j + 1 < maze.getWidth() && maze.getRightBorders()[i + 1][j] == 1
+                        && maze.getLowerBorders()[i][j + 1] == 1) {
                         if (maze.getRightBorders()[i][j] == 1) {
                             rightBorderBuilder.setCharAt(2, '├');
                         } else {
                             rightBorderBuilder.setCharAt(2, '┌');
                         }
 
-                    } else if (i + 1 < maze.getHeight() && maze.getRightBorders()[i][j] == 1 &&
-                        maze.getRightBorders()[i + 1][j] == 1) {
+                    } else if (i + 1 < maze.getHeight() && maze.getRightBorders()[i][j] == 1
+                        && maze.getRightBorders()[i + 1][j] == 1) {
                         rightBorderBuilder.setCharAt(2, '│');
-                    } else if (j + 1 != maze.getWidth() && maze.getRightBorders()[i][j] == 1 &&
-                        maze.getLowerBorders()[i][j + 1] == 1) {
+                    } else if (j + 1 != maze.getWidth() && maze.getRightBorders()[i][j] == 1
+                        && maze.getLowerBorders()[i][j + 1] == 1) {
                         rightBorderBuilder.setCharAt(2, '└');
                     }
 
-                    System.out.print(rightBorderBuilder);
+                    result.append(rightBorderBuilder);
 
                 }
             }
-            System.out.println();
+            result.append("\n");
         }
+        return result.toString();
     }
 
     @Override
-    public void render() {
-        renderWithSolution(null);
+    public String render() {
+        return renderWithSolution(null);
     }
 }

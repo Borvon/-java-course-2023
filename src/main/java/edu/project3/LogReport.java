@@ -1,23 +1,20 @@
 package edu.project3;
 
 import java.io.IOException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
 import java.util.HashMap;
-import java.util.Locale;
+import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 public class LogReport {
 
+    private final String root = "A:/java course";
     private final Pattern format =
         Pattern.compile("(\\d{1,3}\\.){3}\\d{1,3} - - \\[(.*?)] \"(.*?)\" (\\d{3}) (\\d*) \".*?\" \".*?\"");
     private String name;
@@ -28,73 +25,156 @@ public class LogReport {
     private Map<String, Integer> resources = new HashMap<>();
     private Map<Integer, Integer> responses = new HashMap<>();
 
-    public static void main(String[] args) {
-        new LogReport(
-            Paths.get("A:", "java course", "nginx_logs.txt"),
-            null,
-            null
-        );
+    private LocalDate from;
+    private LocalDate to;
+    List<String> fileNames;
+
+    public LogReport(List<String> fileNames, Stream<LogRecord> records, LocalDate from, LocalDate to) {
+        this.fileNames = fileNames;
+
+        this.from = from;
+        this.to = to;
+
+        records.forEach((rec) -> {
+
+            if ((from == null || !rec.getDate().isBefore(from)) && (to == null || !rec.getDate().isAfter(to))) {
+
+                requestCount++;
+
+                int response = rec.getResponse();
+                if (!responses.containsKey(response)) {
+                    responses.put(response, 1);
+                } else {
+                    responses.put(response, responses.get(response) + 1);
+                }
+
+                summaryResponseSize += rec.getSize();
+
+                String resource = rec.getResource();
+
+                if (!resources.containsKey(resource)) {
+                    resources.put(resource, 1);
+                } else {
+                    resources.put(resource, resources.get(resource) + 1);
+                }
+
+            }
+
+        });
+
+        if (requestCount == 0) {
+            averageResponseSize = 0;
+        } else {
+            averageResponseSize = summaryResponseSize / requestCount;
+        }
     }
 
-    public LogReport(Path path, LocalDate from, LocalDate to) {
+    @SuppressWarnings("MultipleStringLiterals")
+    void printToFile(String name, String format) {
+        String fileName;
+        StringBuilder reportStringBuilder = new StringBuilder();
 
-        name = path.getFileName().toString();
+        switch (format) {
+            case "adoc" -> {
+                fileName = name + ".adoc";
 
-        try (Stream<String> lines = Files.lines(path)) {
+                reportStringBuilder
+                    .append("==== Общая информация\n")
+                    .append("[cols=2]\n")
+                    .append("|===\n")
+                    .append("|Метрика\n|Значение\n");
 
-            lines.forEach((string) -> {
-
-                Matcher mathcer = format.matcher(string);
-
-                if (mathcer.find()) {
-                    String dateString = mathcer.group(2);
-                    DateTimeFormatter formatter = new DateTimeFormatterBuilder()
-                        .appendPattern("dd/MMM/yyyy:HH:mm:ss Z")
-                        .toFormatter(Locale.ENGLISH);
-                    LocalDate date = LocalDateTime.parse(dateString, formatter).toLocalDate();
-
-                    if ((from == null || !date.isBefore(from)) && (to == null || !date.isAfter(to))) {
-
-                        requestCount++;
-
-                        int response = Integer.parseInt(mathcer.group(4));
-                        if (!responses.containsKey(response)) {
-                            responses.put(response, 1);
-                        } else {
-                            responses.put(response, responses.get(response) + 1);
-                        }
-
-                        summaryResponseSize += Integer.parseInt(mathcer.group(5));
-
-                        String request = mathcer.group(3).split(" ")[1];
-
-                        Matcher requestMatcher = Pattern.compile("/(?!.*/)(.*)").matcher(request);
-
-                        if (requestMatcher.find()) {
-                            String resource = requestMatcher.group(1);
-
-                            if (!resources.containsKey(resource)) {
-                                resources.put(resource, 1);
-                            } else {
-                                resources.put(resource, resources.get(resource) + 1);
-                            }
-                        }
-                    }
+                for (int i = 0; i < fileNames.size(); i++) {
+                    reportStringBuilder.append("|Файл ")
+                        .append(i + 1).append("\n|")
+                        .append(fileNames.get(i))
+                        .append("\n");
                 }
-            });
+                    reportStringBuilder.append("|Начальная дата\n|").append((from == null) ? "-" : from).append("\n")
+                    .append("|Конечная дата\n|").append((to == null) ? "-" : to).append("\n")
+                    .append("|Количество запросов\n|").append(requestCount).append("\n")
+                    .append("|Средний размер ответа\n|").append(averageResponseSize).append("\n")
+                    .append("|===\n")
 
-            if (requestCount == 0) {
-                averageResponseSize = 0;
-            } else {
-                averageResponseSize = summaryResponseSize / requestCount;
+                    .append("==== Запрашиваемые ресурсы\n")
+                    .append("[cols=2]\n")
+                    .append("|===\n")
+                    .append("|Ресурс\n|Количество\n");
+                for (var resource : resources.entrySet()) {
+                    reportStringBuilder.append("|`")
+                        .append(resource.getKey())
+                        .append("`\n|")
+                        .append(resource.getValue())
+                        .append("\n");
+                }
+
+                reportStringBuilder
+                    .append("|===\n")
+                    .append("==== Коды ответа\n")
+                    .append("[cols=2]\n")
+                    .append("|===\n")
+                    .append("|Код\n|Количество\n");
+                for (var response : responses.entrySet()) {
+                    reportStringBuilder.append("|`")
+                        .append(response.getKey())
+                        .append("`\n|")
+                        .append(response.getValue())
+                        .append("\n");
+                }
+                reportStringBuilder.append("|===\n");
             }
-            System.out.println();
+            case "md" -> {
+                fileName = name + ".md";
+                reportStringBuilder
+                    .append("#### Общая информация\n")
+                    .append("|Метрика|Значение|\n")
+                    .append("|:-:|-:|\n");
+
+                for (int i = 0; i < fileNames.size(); i++) {
+                    reportStringBuilder
+                        .append("|Файл ")
+                        .append(i + 1).append("|")
+                        .append(fileNames.get(i))
+                        .append("|\n");
+                }
+
+                reportStringBuilder.append("|Начальная дата|").append((from == null) ? "-" : from).append("|\n")
+                    .append("|Конечная дата|").append((to == null) ? "-" : to).append("|\n")
+                    .append("|Количество запросов|").append(requestCount).append("|\n")
+                    .append("|Средний размер ответа|").append(averageResponseSize).append("|\n")
+
+                    .append("#### Запрашиваемые ресурсы\n")
+                    .append("|Ресурс|Количество|\n")
+                    .append("|:-:|:-:|\n");
+                for (var resource : resources.entrySet()) {
+                    reportStringBuilder.append("|`")
+                        .append(resource.getKey())
+                        .append("`|")
+                        .append(resource.getValue())
+                        .append("|\n");
+                }
+
+                reportStringBuilder
+                    .append("#### Коды ответа\n")
+                    .append("|Код|Количество|\n")
+                    .append("|:-:|:-:|\n");
+                for (var response : responses.entrySet()) {
+                    reportStringBuilder.append("|`")
+                        .append(response.getKey())
+                        .append("`|")
+                        .append(response.getValue())
+                        .append("|\n");
+                }
+
+            }
+            default -> throw new IllegalArgumentException();
+        }
+
+        try (FileChannel channel = new RandomAccessFile(root + "/" + fileName, "rw").getChannel()) {
+            ByteBuffer buf = ByteBuffer.wrap(reportStringBuilder.toString().getBytes(StandardCharsets.UTF_8));
+            channel.write(buf);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-
-    public LogReport(URL url) {
-    }
-
 }

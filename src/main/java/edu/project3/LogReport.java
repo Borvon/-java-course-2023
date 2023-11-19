@@ -5,6 +5,8 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -14,7 +16,7 @@ import java.util.stream.Stream;
 
 public class LogReport {
 
-    private final String root = "A:/java course";
+    private final String root = Paths.get(".").toString();
     private final Pattern format =
         Pattern.compile("(\\d{1,3}\\.){3}\\d{1,3} - - \\[(.*?)] \"(.*?)\" (\\d{3}) (\\d*) \".*?\" \".*?\"");
     private String name;

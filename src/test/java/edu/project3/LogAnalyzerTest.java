@@ -10,14 +10,12 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 class LogAnalyzerTest {
 
-    final String ROOT_PATH = "A:/java course";
+    final String ROOT_PATH = Paths.get(".").toString();
 
     @Test
     @DisplayName("Log Analyzer test")
